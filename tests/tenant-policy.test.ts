@@ -1,0 +1,14 @@
+import {it,expect} from 'vitest';
+import type {AccountInfo,AuthenticationResult} from '@azure/msal-browser';
+import {TenantSession,loginAuthority,organizationsAuthority,validateOrganization} from '../src/tenantPolicy';
+import {validateConfig} from '../src/config';
+import {preferencesKey} from '../src/workbook';
+const publisher='9c9e5e5f-2563-4959-9cfd-54536047f126',other='12345678-1234-1234-1234-123456789abc';
+const config={clientId:'d3975ea0-48b5-4ce9-8047-a0a0b38e5cbf',tenantId:publisher};
+const account=(tenantId:string,user='user')=>({tenantId,homeAccountId:`${user}.home`,localAccountId:user,username:'user@example.com',environment:'login.windows.net'}) as AccountInfo;
+it('uses organizations by default including previously saved settings',()=>{expect(loginAuthority(config)).toBe(organizationsAuthority);expect(loginAuthority({...config,tenantMode:'organizations'})).toBe(organizationsAuthority);expect(validateOrganization(account(other),config).tenantId).toBe(other);});
+it('allows multi-tenant mode without asking the customer for a tenant ID',()=>{expect(validateConfig({...config,tenantId:'',tenantMode:'organizations'}).tenantId).toBe('');expect(()=>validateConfig({...config,tenantId:'',tenantMode:'single'})).toThrow();});
+it('pins all later requests to the actual signed-in tenant and rejects another tenant or user',()=>{const s=new TenantSession(config);s.bind(account(other));expect(s.authority(account(other))).toBe(`https://login.microsoftonline.com/${other}`);expect(()=>s.check(account(publisher))).toThrow();expect(()=>s.check(account(other,'different'))).toThrow();});
+it('rejects a token result from a different tenant and rejects requests after session clearing',()=>{const s=new TenantSession(config);s.bind(account(other));expect(()=>s.checkResult({account:account(other),tenantId:publisher} as AuthenticationResult)).toThrow();s.clear();expect(()=>s.check(account(other))).toThrow();});
+it('retains explicit single-tenant mode and rejects consumer accounts',()=>{const single={...config,tenantMode:'single' as const};expect(loginAuthority(single)).toContain(publisher);expect(()=>validateOrganization(account(other),single)).toThrow();expect(()=>validateOrganization(account('9188040d-6c67-4c5b-b112-36a304b66dad'),config)).toThrow();});
+it('keeps workbook and display settings separate even for identical account IDs in different tenants',()=>expect(preferencesKey(publisher,'same')).not.toBe(preferencesKey(other,'same')));

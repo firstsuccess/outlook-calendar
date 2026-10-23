@@ -6,6 +6,7 @@ db\schema.ts
 dist\ (配備用生成物一式)
 docs\FILES.txt
 docs\IMPLEMENTATION.txt
+docs\MULTITENANT_SETUP.txt
 docs\VERIFICATION.txt
 drizzle.config.ts
 drizzle\0000_clumsy_quicksilver.sql
@@ -13,10 +14,12 @@ drizzle\meta\_journal.json
 drizzle\meta\0000_snapshot.json
 index.html
 manifest.xml
+OrganizationAddressBook.xlsx
 package-lock.json
 package.json
 public\_headers
 public\config.json
+public\OrganizationAddressBook.xlsx
 scripts\build-site-worker.mjs
 scripts\Deploy.ps1
 scripts\release.mjs
@@ -27,6 +30,7 @@ src\calendar.ts
 src\CalendarGrid.tsx
 src\config.ts
 src\ConnectionResult.tsx
+src\connectionTest.ts
 src\errors.ts
 src\excel.ts
 src\excelUrl.ts
@@ -37,19 +41,23 @@ src\main.tsx
 src\model.ts
 src\preferences.ts
 src\style.css
+src\tenantPolicy.ts
 src\timezone.ts
 src\TimezoneSettings.tsx
 src\VisitCounter.tsx
 src\workbook.ts
 src\WorkbookSettings.tsx
 tests\config.test.ts
+tests\connection-test.test.ts
 tests\core.test.ts
 tests\counter.test.ts
 tests\errors.test.ts
 tests\excelUrl.test.ts
 tests\graph.test.ts
+tests\multitenant-auth.test.ts
 tests\settings-edit.test.tsx
 tests\settings.test.tsx
+tests\tenant-policy.test.ts
 tests\timezone.test.ts
 tests\visit-client.test.ts
 tests\workbook.test.ts
