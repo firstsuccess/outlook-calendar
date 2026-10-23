@@ -1,11 +1,11 @@
 import {readSheet} from 'read-excel-file/browser';
 import {parseBook,tableRows,orgColumns,memberColumns,type Book} from './model';
 import {Graph,fileScopes} from './graph';
-import type {Config} from './config';
+import type {WorkbookReference} from './workbook';
 export function validateUrl(value:string){const u=new URL(value);if(u.protocol!=='https:'||u.username||u.password||!/(^|\.)sharepoint\.com$/i.test(u.hostname))throw Error('SharePoint / OneDrive for Business HTTPS URL required');return u;}
 interface Item{id:string;name:string;eTag:string;size:number;file?:unknown;webUrl:string;parentReference:{driveId:string};'@microsoft.graph.downloadUrl'?:string}
 export interface Master{book:Book;etag:string;checked:number;url:string}
-export async function loadMaster(graph:Graph,c:Config,signal:AbortSignal,previous?:Master):Promise<Master>{
+export async function loadMaster(graph:Graph,c:WorkbookReference,signal:AbortSignal,previous?:Master):Promise<Master>{
  const url=validateUrl(c.excelUrl);let root:string;
  if(c.driveId&&c.itemId)root=`/drives/${encodeURIComponent(c.driveId)}/items/${encodeURIComponent(c.itemId)}`;
  else{

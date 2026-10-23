@@ -2,7 +2,7 @@
 
 成功
 - npm run build: TypeScript strict型検査とVite本番ビルド成功。
-- npm test: 2ファイル、20件成功（Microsoft 365へ接続しないオフライン試験）。
+- npm test: 3ファイル、23件成功（Microsoft 365へ接続しないオフライン試験）。
 - npm run validate:manifest: Microsoft公式検証サービスがThe manifest is validと判定。
 - npm audit --omit=dev: 本番依存の既知脆弱性0件。
 - PNGアイコン16/32/64/80/128pxと配布用manifest.xmlを生成。
@@ -15,7 +15,9 @@
 - Marketplace提出・承認・公開配布審査は未実施。
 
 運用開始に必要
-public/config.jsonのclientId/tenantId/excelUrl（必要ならdriveId/itemId）を設定し再ビルド・再配備。
+public/config.jsonのclientId/tenantIdを設定し再ビルド・再配備（提供済みIDを反映済み）。
+Excel URL（必要ならDrive ID / Item ID）は各利用者がサインイン後に設定画面から登録。
+Excel参照先は変更・解除可能で、再配備不要。テナント・ユーザー別の保存と参照先変更時の選択初期化を試験済み。
 Entra SPAリダイレクトURIは公開先ルートURL。Graphは委任権限のみ。
 詳細な手順と実テナント試験はIMPLEMENTATION.txtおよびトップページ3言語ガイドを参照。
 この結果を実テナントで検証済みと解釈しないこと。

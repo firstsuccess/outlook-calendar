@@ -47,14 +47,14 @@ Graph失敗ログは画面上の一般コードのみ。件名・本文・トー
 CSPをHTMLへ設定。配備ホストで同等のCSPとHSTS、X-Content-Type-OptionsをHTTPヘッダーにも設定する。
 SharePointダウンロード先はMicrosoftのHTTPSホストに限定、Bearerを転送しない。
 公開config.jsonは秘密情報を含めない。共通設定更新APIは設けず配備管理者のみ編集。
-allowPersonalWorkbookは任意の個人設定。共通設定を更新する機能ではない。
+Excel参照先は全利用者が登録・変更・解除可能。テナント・アカウント別にローカル保存。
 
 ENTRA_SETUP
 1. Entra管理センター→アプリ登録→この組織ディレクトリのみ。
 2. SPAプラットフォームを追加。HTTPSのサイトルート（末尾/）をリダイレクトURIへ。
 3. 上記Graph委任権限を追加。必要な管理者同意を付与。Client Secretは作成しない。
-4. public/config.jsonへclientId / tenantId / excelUrlを入力。
-   共有URLが不透明なリンクならdriveId / itemIdを管理者が設定。
+4. public/config.jsonへclientId / tenantIdのみ入力。Excel URLはサインイン後に各利用者が設定画面で登録。
+   共有URLが不透明なリンクなら設定画面の詳細設定でDrive ID / Item IDを利用者が登録。
 5. .env.exampleを参考に公開URLを指定して再ビルド。EntraのURIと配備先を一致させる。
 6. Excelと予定表の共有権限はMicrosoft 365側で通常の方法で管理する。
 7. 権限取消後は画面の更新を実施。古い予定を破棄したうえで再照会する。
@@ -108,3 +108,9 @@ https://learn.microsoft.com/en-us/graph/api/driveitem-get-content?view=graph-res
 https://learn.microsoft.com/en-us/graph/api/site-getbypath?view=graph-rest-1.0
 https://learn.microsoft.com/en-us/graph/api/worksheet-usedrange?view=graph-rest-1.0
 https://learn.microsoft.com/en-us/javascript/api/requirement-sets/common/open-browser-window-api-requirement-sets
+
+更新: Excel参照先を共通configから完全に分離。登録・変更・解除は利用者の設定画面で行う。
+URLと任意のDrive ID / Item IDをテナント・アカウント別にブラウザ保存する。
+未登録時はGraphでExcelを取得しない。変更時は通信を中止し、古い組織・予定・選択を消去する。
+同じ参照先での取得失敗時のみ従来の古いマスタ表示を許容する。
+ユーザー別Excel設定は他テナントからの認証を許可するものではない。Entraは引き続き設定済み単一テナント。
