@@ -40,6 +40,7 @@ tests\core.test.ts
 tests\errors.test.ts
 tests\excelUrl.test.ts
 tests\graph.test.ts
+tests\settings-edit.test.tsx
 tests\settings.test.tsx
 tests\timezone.test.ts
 tests\workbook.test.ts

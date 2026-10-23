@@ -16,3 +16,6 @@ export async function loadConfig():Promise<Config>{
  const r=await fetch('/config.json',{cache:'no-store'}); if(!r.ok)throw Error('Configuration unavailable');
  const c=await r.json(); return validateConfig({clientId:import.meta.env.VITE_CLIENT_ID||c.clientId,tenantId:import.meta.env.VITE_TENANT_ID||c.tenantId,redirectUri:import.meta.env.VITE_REDIRECT_URI||c.redirectUri});
 }
+export async function applyAuthSettings(draft:Config,reset:boolean,onApply:(config:Config)=>Promise<void>){
+ let next:Config;if(reset){resetAuthOverride();next=await loadConfig();}else{next=validateConfig(draft);saveAuthOverride(next);}await onApply(next);return next;
+}
