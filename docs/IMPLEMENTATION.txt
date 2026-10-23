@@ -1,0 +1,110 @@
+もんじゃグループ予定表 / Monja Group Calendar — 2026-10-23
+
+資料の形式
+「.md説明ファイルを作成しない」を優先し、README / DEPLOYMENT / ENTRA_SETUP /
+TEST_PLAN / MARKETPLACE_CHECKLIST相当を本ファイルとトップページの3言語ガイドへ集約。
+公開説明はトップページ1ページのみ。addin.htmlはOutlook専用ランチャー。
+
+既存資産調査
+C:\outlook-hierarchy の src/model.ts、src/graph.ts、src/auth.ts、package.json、
+manifest.xmlを読み取り専用で確認。model.tsを新規作業フォルダへ移植。
+既存認証のOffice依存・トークン引渡しは移植せず、ブラウザMSAL＋メモリキャッシュへ変更。
+既存Workbook APIのFiles.ReadWriteは採用せず、read-only driveItemダウンロードへ変更。
+既存の.env、証明書、秘密情報は読取・コピーしていない。既存アプリは変更していない。
+
+構成
+React + TypeScript + Vite静的ビルド。Node.js常駐不要。バックエンド・DB不要。
+src/auth.ts: Entra単一テナントのMSAL SPA認証（Authorization Code + PKCE）。
+src/graph.ts: Graph URL境界、読取専用ガード、401再試行、429/503 Retry-After、ページング。
+src/excel.ts: SharePoint / OneDrive for BusinessのURLまたは管理者のdriveId/itemIdから取得。
+read-excel-fileでOrganizations/Membersシートをメモリ解析。先頭行の列名を検証。書込APIなし。
+src/model.ts: 元の組織ツリー・IsActive・順序・循環検証。無効組織の子も非表示。
+src/preferences.ts: テナント・利用者別ブラウザ設定。allとcustomの選択モード。
+src/calendar.ts: 最大20名ごとにgetSchedule。UI期間は1日または1週（62日未満）。
+本人の/me/calendarsに列挙される共有予定表だけcalendarViewを照会し詳細を照合。
+メール→UPNの推定、ディレクトリ全件検索、アプリケーション権限は使用しない。
+src/CalendarGrid.tsx: 正確な開始終了から配置、重複レーン、日週・縦横・固定ヘッダー。
+src/guide.tsx: 日英中の利用・導入・プライバシー・サポート・試験ガイド。
+scripts/release.mjs: 環境別ManifestとPNGアイコン生成。再ビルドでdistへ配置。
+scripts/Deploy.ps1: 新規フォルダへの手動コピー専用。IISやサービスは設定しない。
+
+権限と安全性
+User.Read: サインイン利用者の識別。
+Calendars.ReadBasic: getSchedule（委任）。
+Calendars.Read.Shared: 本人がアクセス可能な共有予定表詳細（委任）。
+Files.Read.All: 本人がアクセス可能な既存共有ライブラリの組織Excel（委任）。
+Sites.Read.All: URLからサイト・ライブラリを解決する場合のみ（管理者同意対象）。
+driveId/itemIdを共通設定に明示するとSites.Read.Allは要求しない。
+各テナントの同意ポリシーにより他の権限も管理者同意が必要な場合がある。
+Excel用の書込権限、User.ReadBasic.All、アプリケーション権限は追加しない。
+getScheduleは照会目的のPOSTのみ。Graphクライアントは他のPOSTを禁止。
+私的・機密の詳細は常に保守的に消去し、自由記述をHTMLとして描画しない。
+本文は共有アクセス成功時のbodyPreviewだけを表示。添付ファイル・HTML本文は取得しない。
+同一時刻の予定の照合に限定し、共有カスタム予定表を本人の主予定表の空き判定へ流用しない。
+取得失敗・権限拒否・unknownは共通空き判定を停止。
+アクセストークン・予定・組織データ・ダウンロードURLを永続保存しない。
+Graph失敗ログは画面上の一般コードのみ。件名・本文・トークンはログに残さない。
+CSPをHTMLへ設定。配備ホストで同等のCSPとHSTS、X-Content-Type-OptionsをHTTPヘッダーにも設定する。
+SharePointダウンロード先はMicrosoftのHTTPSホストに限定、Bearerを転送しない。
+公開config.jsonは秘密情報を含めない。共通設定更新APIは設けず配備管理者のみ編集。
+allowPersonalWorkbookは任意の個人設定。共通設定を更新する機能ではない。
+
+ENTRA_SETUP
+1. Entra管理センター→アプリ登録→この組織ディレクトリのみ。
+2. SPAプラットフォームを追加。HTTPSのサイトルート（末尾/）をリダイレクトURIへ。
+3. 上記Graph委任権限を追加。必要な管理者同意を付与。Client Secretは作成しない。
+4. public/config.jsonへclientId / tenantId / excelUrlを入力。
+   共有URLが不透明なリンクならdriveId / itemIdを管理者が設定。
+5. .env.exampleを参考に公開URLを指定して再ビルド。EntraのURIと配備先を一致させる。
+6. Excelと予定表の共有権限はMicrosoft 365側で通常の方法で管理する。
+7. 権限取消後は画面の更新を実施。古い予定を破棄したうえで再照会する。
+
+DEPLOYMENT
+npm ci
+npm test
+npm run build
+npm run validate:manifest
+生成distをHTTPS静的ホストへ配備。ローカルサーバー起動は禁止のため行わない。
+本番用config.jsonを先に設定すること。未設定の場合はサインインを無効化。
+manifest.xmlのサポートURLはトップページの#support。説明はトップページ内へ集約。
+Microsoft 365管理センター→統合アプリ→カスタムアプリでXML配布。
+メール読取・作成、予定の参加者・主催者画面にShowTaskpaneコマンド。
+Office.js OpenBrowserWindowApi対応時に外部ブラウザを使用。
+Web/New等の非対応環境ではOffice dialogと明示リンクを提示。
+一般配布前にプライバシー・サポート窓口のひな形を正式情報へ置換する。
+
+TEST_PLAN（Microsoft 365実接続は未実施）
+オフライン: 組織循環、無効階層、兼務、列検証、全員/個別選択と増減、
+非公開データ消去、取得失敗と共通空き、unknown、正確な区間、重複レーン、
+夏時間23/25時間、週境界、Retry-After、URL境界。
+実テナント: getSchedule 20名超、空きのみ、件名場所、詳細、共有なし、非公開、
+繰返し例外、終日、DST、401/403/404/429/503、取消と再同意、別テナント、
+Excelの列順・更新ETag・組織変更・障害・復旧、共有リンク＋ID、OneDrive、
+Outlook Web/Classic/Newの4起動面、ポップアップブロック、モバイル、キーボード、
+3言語、ダークモード、大人数時の実パフォーマンス、実際のCSPヘッダーを確認。
+
+既知の設計上の制約・未検証
+任意のGraph将来期間APIではなく日週照会に限定。可用性表示文字列への丸め描画はしない。
+全日の予定はgetScheduleが返す区間をそのまま描画し、calendarView照合時に終日を明示。
+未追加の共有予定表は詳細対象外。メール別名とowner.address不一致では詳細へ昇格しない。
+private/confidentialは実際の代理権限にかかわらず詳細非表示の保守的仕様。
+詳細照合は同一開始終了に限定。主予定表とカスタム予定表の同一時刻の詳細混在は要試験。
+非常に大きい組織の仮想スクロールは未実装。10MB / 5万行のExcel上限。
+Teams登録は初期版対象外。Webアプリ分離により将来の個人タブへの展開が可能。
+Graphの伝搬遅延・MSALのトークン有効期間中の取消反映遅延は実環境で確認する。
+複数テナント版は、許可リスト・テナント別設定・同意導線を別途実装する。
+
+MARKETPLACE_CHECKLIST
+Manifest公式検証、公開HTTPS、正式運営者、連絡先、利用規約、プライバシーポリシー、
+サポート、正規アイコン、3言語説明、スクリーンショット、試験アカウント、
+対応クライアント実測、Entra発行元検証、Microsoftの最新審査を確認して提出。
+本成果物をMarketplace審査済みまたは実テナント検証済みと扱わないこと。
+
+公式仕様（確認日 2026-10-23）
+https://learn.microsoft.com/en-us/graph/api/calendar-getschedule?view=graph-rest-1.0
+https://learn.microsoft.com/en-us/graph/outlook-get-free-busy-schedule
+https://learn.microsoft.com/en-us/graph/outlook-get-shared-events-calendars
+https://learn.microsoft.com/en-us/graph/api/driveitem-get-content?view=graph-rest-1.0
+https://learn.microsoft.com/en-us/graph/api/site-getbypath?view=graph-rest-1.0
+https://learn.microsoft.com/en-us/graph/api/worksheet-usedrange?view=graph-rest-1.0
+https://learn.microsoft.com/en-us/javascript/api/requirement-sets/common/open-browser-window-api-requirement-sets
