@@ -30,7 +30,12 @@ function App(){
  const masterRef=useRef<Master|undefined>(undefined),reloadRef=useRef<AbortController|null>(null),scheduleRef=useRef<AbortController|null>(null);
  const t=strings[prefs.language],zone=effectiveZone(prefs.timeZone);
  const key=auth?.account?preferencesKey(auth.account.tenantId,auth.account.homeAccountId):'';
- useEffect(()=>{let live=true;const epoch=++authEpoch.current;loadConfig().then(async c=>{if(!live||epoch!==authEpoch.current)return;setConfig(c);try{const a=new Auth(c);await a.init();if(live&&epoch===authEpoch.current)setAuth(a);}catch{if(live&&epoch===authEpoch.current)setError('CONFIG');}}).catch(()=>{if(live&&epoch===authEpoch.current)setError('CONFIG');});return()=>{live=false;};},[]);
+ useEffect(()=>{let live=true;const epoch=++authEpoch.current;loadConfig().then(async c=>{if(!live||epoch!==authEpoch.current)return;setConfig(c);try{const a=new Auth(c);await a.init();if(live&&epoch===authEpoch.current){
+ const account=a.account;
+ if(account){const saved=loadPreferences(preferencesKey(account.tenantId,account.homeAccountId));setPrefs(saved);setUser(account.name||account.username);
+ try{await a.token([...calendarScopes,...fileScopes,...(saved.personalDriveId?[]:['Sites.Read.All'])]);if(live&&epoch===authEpoch.current)setApproved(true);}catch{/* Consent or reauthentication requires user interaction. */}}
+ if(live&&epoch===authEpoch.current)setAuth(a);
+ }}catch{if(live&&epoch===authEpoch.current)setError('CONFIG');}}).catch(()=>{if(live&&epoch===authEpoch.current)setError('CONFIG');});return()=>{live=false;};},[]);
  useEffect(()=>{document.documentElement.lang=prefs.language;document.documentElement.dataset.theme=prefs.theme;},[prefs.language,prefs.theme]);
  useEffect(()=>{if(key){try{localStorage.setItem(key,JSON.stringify(prefs));}catch{/* Browser storage may be unavailable. */}}},[key,prefs]);
  const change=(p:Partial<Preferences>)=>setPrefs(x=>({...x,...p}));

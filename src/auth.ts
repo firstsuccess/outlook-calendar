@@ -7,9 +7,15 @@ export class Auth {
  constructor(readonly config:Config){
   validateConfig(config);
   this.session=new TenantSession(config);
-  this.app=new PublicClientApplication({auth:{clientId:config.clientId,authority:loginAuthority(config),redirectUri:getRedirectUri(config)},cache:{cacheLocation:'memoryStorage'},system:{loggerOptions:{piiLoggingEnabled:false,loggerCallback:()=>{}}}});
+  this.app=new PublicClientApplication({auth:{clientId:config.clientId,authority:loginAuthority(config),redirectUri:getRedirectUri(config)},cache:{cacheLocation:'localStorage'},system:{loggerOptions:{piiLoggingEnabled:false,loggerCallback:()=>{}}}});
  }
- async init(){await this.app.initialize();}
+ async init(){
+  await this.app.initialize();
+  const account=this.app.getActiveAccount();
+  if(!account)return;
+  try{validateOrganization(account,this.config);this.session.bind(account);await this.token(['User.Read']);}
+  catch{this.session.clear();this.app.setActiveAccount(null);}
+ }
  get account(){return this.app.getActiveAccount();}
  async login(){const r=await this.app.loginPopup({scopes:['User.Read'],prompt:'select_account'});validateOrganization(r.account,this.config);this.session.bind(r.account);try{this.session.checkResult(r);this.app.setActiveAccount(r.account);}catch(e){this.session.clear();throw e;}}
  check(a:AccountInfo|null){this.session.check(a);}
