@@ -20,7 +20,10 @@ src\AuthSettings.tsx
 src\calendar.ts
 src\CalendarGrid.tsx
 src\config.ts
+src\ConnectionResult.tsx
+src\errors.ts
 src\excel.ts
+src\excelUrl.ts
 src\graph.ts
 src\guide.tsx
 src\i18n.ts
@@ -34,7 +37,10 @@ src\workbook.ts
 src\WorkbookSettings.tsx
 tests\config.test.ts
 tests\core.test.ts
+tests\errors.test.ts
+tests\excelUrl.test.ts
 tests\graph.test.ts
+tests\settings.test.tsx
 tests\timezone.test.ts
 tests\workbook.test.ts
 tsconfig.json

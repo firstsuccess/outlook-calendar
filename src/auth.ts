@@ -1,10 +1,10 @@
 import {PublicClientApplication,InteractionRequiredAuthError,type AccountInfo} from '@azure/msal-browser';
-import {validateConfig,type Config} from './config';
+import {validateConfig,getRedirectUri,type Config} from './config';
 export class Auth {
  readonly app:PublicClientApplication;
  constructor(readonly config:Config){
   validateConfig(config);
-  this.app=new PublicClientApplication({auth:{clientId:config.clientId,authority:`https://login.microsoftonline.com/${config.tenantId}`,redirectUri:new URL('/',location.origin).href},cache:{cacheLocation:'memoryStorage'},system:{loggerOptions:{piiLoggingEnabled:false,loggerCallback:()=>{}}}});
+  this.app=new PublicClientApplication({auth:{clientId:config.clientId,authority:`https://login.microsoftonline.com/${config.tenantId}`,redirectUri:getRedirectUri(config)},cache:{cacheLocation:'memoryStorage'},system:{loggerOptions:{piiLoggingEnabled:false,loggerCallback:()=>{}}}});
  }
  async init(){await this.app.initialize();}
  get account(){return this.app.getActiveAccount();}
