@@ -9,3 +9,5 @@ html[data-theme=dark]{color-scheme:dark;--panel:#172332;--line:#354355;--muted:#
 .connection-test{display:flex;align-items:center;gap:12px}.connection-result{font-weight:700}.connection-result.ok{color:#0067c0}.connection-result.error{color:#c43130}.source-credit,.excel-url-help{overflow-wrap:anywhere}.source-credit a{color:var(--blue)}
 
 .visit-counter{display:inline-block;margin-left:10px;font-variant-numeric:tabular-nums;color:var(--muted)}
+
+.guide-close-row{display:flex;justify-content:flex-end;margin:8px 0 18px}.guide-close-row button{min-width:90px}
