@@ -20,7 +20,7 @@ import {ConnectionResult,type ConnectionState} from './ConnectionResult';
 import './style.css';
 function App(){
  const [config,setConfig]=useState<Config|null>(null),[auth,setAuth]=useState<Auth|null>(null),[user,setUser]=useState(''),[prefs,setPrefs]=useState<Preferences>({...defaults}),[date,setDate]=useState(()=>new Date().toLocaleDateString('en-CA'));
- const [master,setMaster]=useState<Master>(),[schedules,setSchedules]=useState<Schedule[]>([]),[error,setError]=useState(''),[stale,setStale]=useState(false),[loading,setLoading]=useState(false),[masterLoading,setMasterLoading]=useState(false),[settings,setSettings]=useState(false),[help,setHelp]=useState(true),[search,setSearch]=useState(''),[revision,setRevision]=useState(0),[approved,setApproved]=useState(false);
+ const [master,setMaster]=useState<Master>(),[schedules,setSchedules]=useState<Schedule[]>([]),[error,setError]=useState(''),[stale,setStale]=useState(false),[loading,setLoading]=useState(false),[masterLoading,setMasterLoading]=useState(false),[settings,setSettings]=useState(false),[help,setHelp]=useState(false),[search,setSearch]=useState(''),[revision,setRevision]=useState(0),[approved,setApproved]=useState(false);
  const [connectionState,setConnectionState]=useState<ConnectionState>('idle');
  const [authBusy,setAuthBusy]=useState(false);const authPending=useRef(false);
  const masterRef=useRef<Master|undefined>(undefined),reloadRef=useRef<AbortController|null>(null),scheduleRef=useRef<AbortController|null>(null);
