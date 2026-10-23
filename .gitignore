@@ -7,3 +7,6 @@ dist/
 .artifacts/
 outputs/
 *.zip
+
+/OrganizationAddressBook.xlsx
+~$*

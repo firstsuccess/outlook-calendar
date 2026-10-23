@@ -17,5 +17,5 @@ export default {async fetch(request:Request,env:Environment){
  if(!['GET','HEAD'].includes(request.method))return new Response(null,{status:405,headers:{Allow:'GET, HEAD'}});
  const path=url.pathname==='/'?'/index.html':url.pathname;const asset=assets[path];if(!asset)return new Response('Not found',{status:404});
  const bytes=Uint8Array.from(atob(asset.body),c=>c.charCodeAt(0));
- return new Response(request.method==='HEAD'?null:bytes,{headers:{'Content-Type':asset.type,'Cache-Control':path==='/config.json'?'no-store':/^\/assets\/.*-[\w-]+\.(js|css)$/.test(path)?'public, max-age=31536000, immutable':'no-cache','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Strict-Transport-Security':'max-age=31536000','Permissions-Policy':'camera=(), microphone=(), geolocation=()'}});
+ return new Response(request.method==='HEAD'?null:bytes,{headers:{'Content-Type':asset.type,...(path==='/OrganizationAddressBook.xlsx'?{'Content-Disposition':'attachment; filename="OrganizationAddressBook.xlsx"'}:{}),'Cache-Control':path==='/config.json'?'no-store':/^\/assets\/.*-[\w-]+\.(js|css)$/.test(path)?'public, max-age=31536000, immutable':'no-cache','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Strict-Transport-Security':'max-age=31536000','Permissions-Policy':'camera=(), microphone=(), geolocation=()'}});
 }};
