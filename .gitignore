@@ -8,5 +8,4 @@ dist/
 outputs/
 *.zip
 
-/OrganizationAddressBook.xlsx
 ~$*
