@@ -1,0 +1,9 @@
+import {afterEach,it,expect,vi} from 'vitest';
+import {authConfigKey,loadConfig,readAuthOverride,saveAuthOverride,resetAuthOverride,validateConfig} from '../src/config';
+const initial={clientId:'d3975ea0-48b5-4ce9-8047-a0a0b38e5cbf',tenantId:'9c9e5e5f-2563-4959-9cfd-54536047f126'};
+function storage(){const map=new Map<string,string>();vi.stubGlobal('localStorage',{getItem:(k:string)=>map.get(k)||null,setItem:(k:string,v:string)=>map.set(k,v),removeItem:(k:string)=>map.delete(k)});return map;}
+afterEach(()=>vi.unstubAllGlobals());
+it('uses site defaults on first launch',async()=>{storage();const fetch=vi.fn(async()=>({ok:true,json:async()=>initial}));vi.stubGlobal('fetch',fetch);expect(await loadConfig()).toEqual(initial);expect(fetch).toHaveBeenCalledOnce();});
+it('persists a user override and uses it even when published defaults are unavailable',async()=>{storage();const custom={...initial,tenantId:'12345678-1234-1234-1234-123456789abc'};saveAuthOverride(custom);const fetch=vi.fn(()=>{throw Error('offline');});vi.stubGlobal('fetch',fetch);expect(await loadConfig()).toEqual(custom);expect(fetch).not.toHaveBeenCalled();});
+it('restores defaults without deleting tenant/user Excel preferences',()=>{const map=storage();map.set('monja-calendar:tenant:user','workbook');saveAuthOverride(initial);resetAuthOverride();expect(readAuthOverride()).toBeNull();expect(map.get('monja-calendar:tenant:user')).toBe('workbook');});
+it('rejects malformed IDs before storage and ignores corrupt saved values',()=>{const map=storage();expect(()=>saveAuthOverride({...initial,tenantId:'organizations'})).toThrow();expect(map.has(authConfigKey)).toBe(false);map.set(authConfigKey,'invalid json');expect(readAuthOverride()).toBeNull();expect(()=>validateConfig({...initial,clientId:'00000000-0000-0000-0000-000000000000'})).toThrow();});

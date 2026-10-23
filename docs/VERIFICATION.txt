@@ -2,7 +2,7 @@
 
 成功
 - npm run build: TypeScript strict型検査とVite本番ビルド成功。
-- npm test: 3ファイル、23件成功（Microsoft 365へ接続しないオフライン試験）。
+- npm test: 4ファイル、27件成功（Microsoft 365へ接続しないオフライン試験）。
 - npm run validate:manifest: Microsoft公式検証サービスがThe manifest is validと判定。
 - npm audit --omit=dev: 本番依存の既知脆弱性0件。
 - PNGアイコン16/32/64/80/128pxと配布用manifest.xmlを生成。
@@ -23,3 +23,6 @@ Entra SPAリダイレクトURIは公開先ルートURL。Graphは委任権限の
 この結果を実テナントで検証済みと解釈しないこと。
 
 成果物一覧: FILES.txt
+
+認証設定追加: 初回既定値、ユーザー指定値優先、公開設定取得不可時の復元、
+初期設定へ戻す操作でExcel設定を保持、不正GUID・壊れた保存値をオフライン検証。

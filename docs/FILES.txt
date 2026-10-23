@@ -16,6 +16,7 @@ scripts\Deploy.ps1
 scripts\release.mjs
 src\addin.tsx
 src\auth.ts
+src\AuthSettings.tsx
 src\calendar.ts
 src\CalendarGrid.tsx
 src\config.ts
@@ -29,6 +30,7 @@ src\preferences.ts
 src\style.css
 src\workbook.ts
 src\WorkbookSettings.tsx
+tests\config.test.ts
 tests\core.test.ts
 tests\graph.test.ts
 tests\workbook.test.ts
