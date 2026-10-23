@@ -2,7 +2,8 @@ import {readSheet} from 'read-excel-file/browser';
 import {parseBook,tableRows,orgColumns,memberColumns,type Book} from './model';
 import {Graph,fileScopes} from './graph';
 import type {WorkbookReference} from './workbook';
-export function validateUrl(value:string){const u=new URL(value);if(u.protocol!=='https:'||u.username||u.password||!/(^|\.)sharepoint\.com$/i.test(u.hostname))throw Error('SharePoint / OneDrive for Business HTTPS URL required');return u;}
+import {validateUrl,excelPathParts,isDirectExcelUrl} from './excelUrl';
+export {validateUrl} from './excelUrl';
 interface Item{id:string;name:string;eTag:string;size:number;file?:unknown;webUrl:string;parentReference:{driveId:string};'@microsoft.graph.downloadUrl'?:string}
 export interface Master{book:Book;etag:string;checked:number;url:string}
 export async function loadMaster(graph:Graph,c:WorkbookReference,signal:AbortSignal,previous?:Master):Promise<Master>{
@@ -10,9 +11,8 @@ export async function loadMaster(graph:Graph,c:WorkbookReference,signal:AbortSig
  if(c.driveId&&c.itemId)root=`/drives/${encodeURIComponent(c.driveId)}/items/${encodeURIComponent(c.itemId)}`;
  else{
   // Resolve a direct library file URL. Sharing links with opaque tokens need administrator-supplied IDs.
-  const pathname=url.searchParams.get('id')||url.pathname;
-  const parts=pathname.split('/').filter(Boolean).map(decodeURIComponent);
-  if(!parts.at(-1)?.toLowerCase().endsWith('.xlsx')||parts.includes(':x:'))throw Error('Direct .xlsx URL or configured driveId/itemId required');
+  const parts=excelPathParts(url);
+  if(!isDirectExcelUrl(url))throw Error('Direct .xlsx URL or configured driveId/itemId required');
   const siteLength=['sites','teams','personal'].includes(parts[0])?2:0;
   const site=await graph.json<{id:string}>(`/sites/${url.hostname}:/${parts.slice(0,siteLength).map(encodeURIComponent).join('/')}`,['Sites.Read.All'],signal);
   const drives=await graph.list<{id:string;webUrl:string}>(`/sites/${encodeURIComponent(site.id)}/drives`,['Sites.Read.All'],signal);

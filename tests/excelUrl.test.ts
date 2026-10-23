@@ -1,0 +1,7 @@
+import {it,expect} from 'vitest';
+import {validateUrl,excelPathParts,isDirectExcelUrl} from '../src/excelUrl';
+import {validateReference} from '../src/workbook';
+it('accepts OneDrive paths with encoded separators and extension',()=>{const url=validateUrl('https://tenant-my.sharepoint.com/%2Fpersonal%2Fuser_example_com%2FDocuments%2Ftest%2FOrganizationAddressBook%2Exlsx');expect(excelPathParts(url)).toEqual(['personal','user_example_com','Documents','test','OrganizationAddressBook.xlsx']);expect(isDirectExcelUrl(url)).toBe(true);expect(()=>validateReference({excelUrl:url.href,driveId:'',itemId:''})).not.toThrow();});
+it('handles ordinary URLs and encoded spaces/Japanese identically',()=>{expect(excelPathParts(validateUrl('https://tenant.sharepoint.com/sites/a/Shared%20Documents/%E7%B5%84%E7%B9%94.xlsx'))).toEqual(['sites','a','Shared Documents','組織.xlsx']);});
+it('does not double decode percent signs in query or pathname',()=>{expect(excelPathParts(validateUrl('https://tenant.sharepoint.com/sites/a/100%25.xlsx')).at(-1)).toBe('100%.xlsx');expect(excelPathParts(validateUrl('https://tenant.sharepoint.com/Forms/AllItems.aspx?id=%2Fsites%2Fa%2F100%2525.xlsx')).at(-1)).toBe('100%25.xlsx');});
+it('continues rejecting opaque sharing links and encoded traversal',()=>{expect(isDirectExcelUrl(validateUrl('https://tenant.sharepoint.com/%3Ax%3A/s/token'))).toBe(false);expect(()=>excelPathParts(validateUrl('https://tenant.sharepoint.com/%2Fsites%2F..%2Fa.xlsx'))).toThrow();});
