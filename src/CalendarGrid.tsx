@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {offsetRange} from './timezone';
 import type {Member} from './model';
 import {atTime,lanes,commonFree,type Schedule,type Event} from './calendar';
 import type {Preferences} from './preferences';
@@ -12,7 +13,7 @@ export function CalendarGrid({members,schedules,days,p,t,zone,loading}:{members:
   const from=atTime(day,p.start,zone),to=atTime(day,p.end,zone),span=to-from;
   const ticks=Array.from({length:Math.floor(span/(p.interval*60000))+1},(_,i)=>from+i*p.interval*60000);
   const free=commonFree(schedules,from,to);
-  return <section className="calendar-day" key={day}><h2>{day}</h2><div className="common"><strong>{t.common}: </strong>{loading?t.loading:free===null?t.unconfirmed:free.length?free.map(f=>`${time(f.start)}–${time(f.end)}`).join(' / '):t.noFree}</div>
+  return <section className="calendar-day" key={day}><h2>{day} · {zone} ({offsetRange(day,zone)})</h2><div className="common"><strong>{t.common}: </strong>{loading?t.loading:free===null?t.unconfirmed:free.length?free.map(f=>`${time(f.start)}–${time(f.end)}`).join(' / '):t.noFree}</div>
   <div className={rows?'grid rows':'grid columns'} style={rows?{minWidth:900}:{gridTemplateColumns:`64px repeat(${members.length},minmax(180px,1fr))`}}>
    {rows?<><div className="corner">{zone}</div><div className="horizontal-axis">{ticks.map(ms=><span key={ms} style={{left:`${(ms-from)/span*100}%`}}>{time(ms)}</span>)}</div></>:<><div className="corner">{zone}</div>{members.map(m=><div key={m.email} className="person-header" title={m.email}>{m.name}<small>{m.position}</small></div>)}</>}
    {!rows&&<div className="vertical-axis" style={{height:Math.max(480,span/60000*1.3)}}>{ticks.map(ms=><span key={ms} style={{top:`${(ms-from)/span*100}%`}}>{time(ms)}</span>)}</div>}

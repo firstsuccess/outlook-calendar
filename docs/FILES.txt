@@ -28,11 +28,14 @@ src\main.tsx
 src\model.ts
 src\preferences.ts
 src\style.css
+src\timezone.ts
+src\TimezoneSettings.tsx
 src\workbook.ts
 src\WorkbookSettings.tsx
 tests\config.test.ts
 tests\core.test.ts
 tests\graph.test.ts
+tests\timezone.test.ts
 tests\workbook.test.ts
 tsconfig.json
 vite.config.ts
