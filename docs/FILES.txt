@@ -24,6 +24,7 @@ scripts\build-site-worker.mjs
 scripts\Deploy.ps1
 scripts\release.mjs
 src\addin.tsx
+src\ApiLimits.tsx
 src\auth.ts
 src\AuthSettings.tsx
 src\calendar.ts
@@ -55,6 +56,7 @@ tests\errors.test.ts
 tests\excelUrl.test.ts
 tests\graph.test.ts
 tests\multitenant-auth.test.ts
+tests\refresh-disabled.test.tsx
 tests\settings-edit.test.tsx
 tests\settings.test.tsx
 tests\tenant-policy.test.ts
