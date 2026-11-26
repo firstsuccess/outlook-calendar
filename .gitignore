@@ -9,3 +9,20 @@ outputs/
 *.zip
 
 ~$*
+
+# Local secrets, caches and backup artifacts
+.cache/
+.npm-cache/
+node_modules/
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.p12
+*.pfx
+*.bak
+*.bak.*
+*.log
+*.log.*
